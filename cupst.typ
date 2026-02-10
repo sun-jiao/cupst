@@ -537,35 +537,6 @@
 }
 
 // ============================================================
-// Styled table with alternating row colors
-// ============================================================
-
-#let cupst-table(
-  columns: auto,
-  align: left,
-  header: [],
-  ..content
-) = {
-  let top-rule = 1.5pt
-  let mid-rule = 0.75pt
-  let bottom-rule = 1.5pt
-
-  table(
-      columns: columns,
-      align: align,
-      stroke: none,
-      table.hline(y: 0, stroke: top-rule),
-      table.header(
-        ..header,
-        table.hline(stroke: mid-rule) 
-      ),
-      ..content,
-      table.hline(stroke: bottom-rule),
-    )
-}
-
-
-// ============================================================
 // Base on the joas class
 //
 // Support for submissions to Journal of Open Aviation Science

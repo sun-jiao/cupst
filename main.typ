@@ -1,4 +1,5 @@
 #import "cupst.typ": *
+#import "@preview/tablex:0.0.9": tablex
 
 #show: cupst.with(
   title: [Lorem ipsum dolor sit amet, consectetur adipiscing elit],
@@ -84,9 +85,10 @@ We process the raw ADS-B data using the following pipeline #plaincite(<Selvaraju
 
 #figure(
   placement: auto,
-  cupst-table(
+  tablex(
     columns: 3,
-    header: ([*Parameter*], [*Value*], [*Unit*]),
+    auto-vlines: false,
+    [*Parameter*], [*Value*], [*Unit*],
     [Sampling Rate], [1], [Hz],
     [Coverage], [Global], [—],
     [Accuracy], [±10], [m],
@@ -123,9 +125,10 @@ $ #x < 17 $
 
 #figure(
   placement: auto,
-  cupst-table(
+  tablex(
     columns: 4,
-    header: ([*Method*], [*Precision*], [*Recall*], [*F1-Score*]),
+    auto-vlines: false,
+    [*Method*], [*Precision*], [*Recall*], [*F1-Score*],
     [Baseline], [0.75], [0.72], [0.73],
     [Proposed], [0.89], [0.87], [0.88],
     [Ablation], [0.82], [0.80], [0.81],
