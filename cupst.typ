@@ -499,6 +499,7 @@
     font: ("Source Sans Pro", "Source Sans 3", "Arial"),
     fill: structure-color-state.get()
   )[#title]
+  " "
   body
 }
 
@@ -520,20 +521,24 @@
 // citation
 // ============================================================
 
-#let posscite(label) = {
+#let posscite(..labels) = {
     set text(fill: link-color)
     show regex("\s\("): [#{sym.quote.single.r}s (]
-    cite(label, form: "prose")
+    let args = labels.pos()
+    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
 }
 
-#let textcite(label) = {
+#let textcite(..labels) = {
     set text(fill: link-color)
-    cite(label, form: "prose")
+    let args = labels.pos()
+    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
 }
 
-#let plaincite(label) = {
+#let plaincite(..labels) = {
     set text(fill: link-color)
-    cite(label, form: "prose")
+    show regex("[\(\)]"): ""
+    let args = labels.pos()
+    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
 }
 
 // ============================================================
@@ -576,4 +581,4 @@
 // This work consists of the file cupst.typ.
 // 
 //
-// End of file `cupst.typ'.
+// End of file 'cupst.typ'.
