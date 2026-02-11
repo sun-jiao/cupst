@@ -127,6 +127,24 @@
   let heading-numbering = if section-numbering { "1." } else { none }
   set heading(numbering: heading-numbering)
   
+  show heading: it => {
+    set par(first-line-indent: 0pt)
+    v(8pt, weak: true)
+    text(
+      font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+      weight: "semibold",
+      size: 10pt,
+      fill: structure-color,
+    )[
+        #if it.numbering != none {
+          counter(heading).display(it.numbering)
+          h(0.5em)
+        }
+        #it.body
+      ]
+    h(1em)
+  }
+  
   show heading.where(level: 1): it => {
     set par(first-line-indent: 0pt)
     v(12pt, weak: true)
@@ -185,18 +203,6 @@
       ]
     )
     v(6pt, weak: true)
-  }
-  
-  show heading.where(level: 4): it => {
-    set par(first-line-indent: 0pt)
-    v(8pt, weak: true)
-    text(
-      font: ("Source Sans Pro", "Source Sans 3", "Arial"),
-      weight: "semibold",
-      size: 10pt,
-      fill: structure-color,
-    )[#it.body]
-    h(1em)
   }
   
   // ============================================================
@@ -522,23 +528,43 @@
 // ============================================================
 
 #let posscite(..labels) = {
-    set text(fill: link-color)
     show regex("\s\("): [#{sym.quote.single.r}s (]
     let args = labels.pos()
-    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
+    args.map(l => {
+      set text(fill: link-color)
+      cite(l, form: "prose")
+    }).join(", ", last: " and ")
 }
 
 #let textcite(..labels) = {
-    set text(fill: link-color)
     let args = labels.pos()
-    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
+    args.map(l => {
+      set text(fill: link-color)
+      cite(l, form: "prose")
+    }).join(", ", last: " and ")
 }
 
 #let plaincite(..labels) = {
-    set text(fill: link-color)
     show regex("[\(\)]"): ""
     let args = labels.pos()
-    args.map(l => cite(l, form: "prose")).join(", ", last: " and ")
+    args.map(l => {
+      set text(fill: link-color)
+      cite(l, form: "prose")
+    }).join(", ", last: " and ")
+}
+
+
+#let appendix(body) = {
+  set heading(numbering: (..nums) => {
+    let parts = nums.pos()
+    let first = numbering("A.", parts.at(0))
+    
+    let rest = parts.slice(1).map(n => numbering("1.", n))
+    return first + " " + rest.join(" ")
+  }, supplement: [Appendix])
+
+  counter(heading).update(0)
+  body
 }
 
 // ============================================================
