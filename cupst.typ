@@ -524,7 +524,7 @@
   v(1em)
   text(
     weight: "semibold",
-    font: serif-fonts-state.get(),
+    font: sans-fonts-state.get(),
     fill: structure-color-state.get()
   )[#title]
   " "
