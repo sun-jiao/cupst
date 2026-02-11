@@ -549,7 +549,7 @@
 // citation
 // ============================================================
 
-#let posscite(..labels) = {
+#let posscite(..labels) = context {
     show regex("\s\("): [#{sym.quote.single.r}s (]
     let args = labels.pos()
     args.map(l => {
@@ -558,7 +558,7 @@
     }).join(", ", last: " and ")
 }
 
-#let textcite(..labels) = {
+#let textcite(..labels) = context {
     let args = labels.pos()
     args.map(l => {
       set text(fill: link-color-state.get())
@@ -566,7 +566,7 @@
     }).join(", ", last: " and ")
 }
 
-#let plaincite(..labels) = {
+#let plaincite(..labels) = context {
     show regex("[\(\)]"): ""
     let args = labels.pos()
     args.map(l => {
