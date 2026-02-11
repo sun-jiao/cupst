@@ -13,7 +13,15 @@
 // ============================================================
 #let DEFAULT_COLOR = rgb(0, 0, 0) // default color 
 #let structure-color-state = state("structure_color", DEFAULT_COLOR)
-#let link-color = rgb(0, 0, 255)
+
+#let LINK_COLOR = rgb(0, 0, 255)
+#let link-color-state = state("link_color", LINK_COLOR)
+
+#let SERIF_FONTS = ("Linux Libertine", "Libertinus Serif", "Times New Roman")
+#let serif-fonts-state = state("serif_fonts", SERIF_FONTS)
+
+#let SANS_FONTS = ("Source Sans Pro", "Source Sans 3", "Arial")
+#let sans-fonts-state = state("sans_fonts", SANS_FONTS)
 
 #let cupst(
   // Metadata
@@ -24,6 +32,7 @@
   abstract: none,
   keywords: (),
   structure-color: DEFAULT_COLOR,
+  link-color: LINK_COLOR,
   
   // Article metadata
   manuscript: "article", // article, rescience, data, software, editorial, proceedings, poster
@@ -57,6 +66,9 @@
   body
 ) = {
   structure-color-state.update(structure-color)
+  link-color-state.update(link-color)
+  serif-fonts-state.update(serif-fonts)
+  sans-fonts-state.update(sans-fonts)
 
   // ============================================================
   // Page setup
@@ -512,7 +524,7 @@
   v(1em)
   text(
     weight: "semibold",
-    font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+    font: serif-fonts-state.get(),
     fill: structure-color-state.get()
   )[#title]
   " "
@@ -541,7 +553,7 @@
     show regex("\s\("): [#{sym.quote.single.r}s (]
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color)
+      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
@@ -549,7 +561,7 @@
 #let textcite(..labels) = {
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color)
+      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
@@ -558,7 +570,7 @@
     show regex("[\(\)]"): ""
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color)
+      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
