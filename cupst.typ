@@ -300,7 +300,14 @@
         tracking: 1.5pt,
         fill: structure-color,
       )[
-        #upper(manuscript.replace("-", " ")) #if layout == "preprint" [
+        #upper(manuscript.replace("-", " "))
+      ] 
+      #if layout == "preprint" [
+        #text(
+          font: sans-fonts,
+          weight: "semibold",
+          fill: structure-color,
+        )[
           (_Preprint_)
         ]
       ]
