@@ -49,6 +49,9 @@
   show-email: true,
   show-line-numbers: true,
   section-numbering: true,
+
+  serif-fonts: ("Linux Libertine", "Libertinus Serif", "Times New Roman"),
+  sans-fonts: ("Source Sans Pro", "Source Sans 3", "Arial"),
   
   // Content
   body
@@ -108,7 +111,7 @@
   // ============================================================
   
   set text(
-    font: ("Linux Libertine", "Libertinus Serif", "Times New Roman"),
+    font: serif-fonts,
     size: 10pt,
     lang: "en",
     hyphenate: false,
@@ -131,7 +134,7 @@
     set par(first-line-indent: 0pt)
     v(8pt, weak: true)
     text(
-      font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+      font: sans-fonts,
       weight: "semibold",
       size: 10pt,
       fill: structure-color,
@@ -150,7 +153,7 @@
     v(12pt, weak: true)
     block(
       text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         size: 12pt,
         fill: structure-color,
@@ -170,7 +173,7 @@
     v(10pt, weak: true)
     block(
       text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         size: 10pt,
         fill: structure-color,
@@ -190,7 +193,7 @@
     v(8pt, weak: true)
     block(
       text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         size: 10pt,
         fill: structure-color,
@@ -222,7 +225,7 @@
         gutter: 0.5em,
         text(
           fill: structure-color,
-          font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+          font: sans-fonts,
           weight: "semibold"
         )[#number.],
         it.note.body
@@ -239,7 +242,7 @@
   show figure.caption: it => {
     set text(size: 9pt)
     text(
-      font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+      font: sans-fonts,
     )[
       #text(weight: "semibold", fill: structure-color)[#it.supplement #context it.counter.display(it.numbering)]#it.separator#it.body
     ]
@@ -292,7 +295,7 @@
     // Manuscript type badge
     block[
       #text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         tracking: 1.5pt,
         fill: structure-color,
@@ -308,7 +311,7 @@
     // Title
     block[
       #text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         size: 14pt,
         fill: structure-color,
@@ -438,7 +441,7 @@
     )[
       #set par(first-line-indent: 0pt)
       #text(
-        font: ("Source Sans Pro", "Source Sans 3", "Arial"),
+        font: sans-fonts,
         weight: "semibold",
         size: 10pt
       )[Abstract]
