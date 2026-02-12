@@ -580,6 +580,10 @@
   set heading(numbering: (..nums) => {
     let parts = nums.pos()
     let first = numbering("A.", parts.at(0))
+
+    if parts.len() == 1 {
+      return "Appendix" + " " + first
+    }
     
     let rest = parts.slice(1).map(n => numbering("1.", n))
     return first + " " + rest.join(" ")
