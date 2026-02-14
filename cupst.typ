@@ -11,17 +11,6 @@
 // ============================================================
 // Main document template
 // ============================================================
-#let DEFAULT_COLOR = rgb(0, 0, 0) // default color 
-#let structure-color-state = state("structure_color", DEFAULT_COLOR)
-
-#let LINK_COLOR = rgb(0, 0, 255)
-#let link-color-state = state("link_color", LINK_COLOR)
-
-#let SERIF_FONTS = ("Linux Libertine", "Libertinus Serif", "Times New Roman")
-#let serif-fonts-state = state("serif_fonts", SERIF_FONTS)
-
-#let SANS_FONTS = ("Source Sans Pro", "Source Sans 3", "Arial")
-#let sans-fonts-state = state("sans_fonts", SANS_FONTS)
 
 #let cupst(
   // Metadata
@@ -31,8 +20,8 @@
   affiliations: (),
   abstract: none,
   keywords: (),
-  structure-color: DEFAULT_COLOR,
-  link-color: LINK_COLOR,
+  structure-color: rgb(0, 0, 0),
+  link-color: rgb(0, 0, 255),
   
   // Article metadata
   manuscript: "article", // article, rescience, data, software, editorial, proceedings, poster
@@ -65,11 +54,6 @@
   // Content
   body
 ) = {
-  structure-color-state.update(structure-color)
-  link-color-state.update(link-color)
-  serif-fonts-state.update(serif-fonts)
-  sans-fonts-state.update(sans-fonts)
-
   // ============================================================
   // Page setup
   // ============================================================
@@ -219,12 +203,19 @@
     )
     v(6pt, weak: true)
   }
+
+  show <paragraph-title>: set text(
+    fill: structure-color, 
+    font: sans-fonts,
+    weight: "semibold"
+  )
   
   // ============================================================
   // Link and reference styling
   // ============================================================  
   show link: it => text(fill: link-color)[#underline(it)]
   show ref: it => text(fill: link-color)[#it]
+  show cite: set text(fill: link-color)
   
   // ============================================================
   // Cambridge-core-like footnote
@@ -516,17 +507,11 @@
 // ============================================================
 // Paragraph 
 // ============================================================
-
-#let paragraph(title, body) = context {
-  let current-color = structure-color-state.get()
+#let paragraph(title, body) = {
   place(hide(heading(level: 1, numbering: none)[#title]))
   set par(first-line-indent: 0pt)
   v(1em)
-  text(
-    weight: "semibold",
-    font: sans-fonts-state.get(),
-    fill: structure-color-state.get()
-  )[#title]
+  [#title<paragraph-title>] 
   " "
   body
 }
@@ -549,28 +534,25 @@
 // citation
 // ============================================================
 
-#let posscite(..labels) = context {
+#let posscite(..labels) = {
     show regex("\s\("): [#{sym.quote.single.r}s (]
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
 
-#let textcite(..labels) = context {
+#let textcite(..labels) = {
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
 
-#let plaincite(..labels) = context {
+#let plaincite(..labels) = {
     show regex("[\(\)]"): ""
     let args = labels.pos()
     args.map(l => {
-      set text(fill: link-color-state.get())
       cite(l, form: "prose")
     }).join(", ", last: " and ")
 }
