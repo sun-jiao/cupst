@@ -539,14 +539,14 @@
     let args = labels.pos()
     args.map(l => {
       cite(l, form: "prose")
-    }).join(", ", last: " and ")
+    }).join(", ", last: " & ")
 }
 
 #let textcite(..labels) = {
     let args = labels.pos()
     args.map(l => {
       cite(l, form: "prose")
-    }).join(", ", last: " and ")
+    }).join(", ", last: " & ")
 }
 
 #let plaincite(..labels) = {
@@ -554,7 +554,7 @@
     let args = labels.pos()
     args.map(l => {
       cite(l, form: "prose")
-    }).join(", ", last: " and ")
+    }).join(", ", last: " & ")
 }
 
 
@@ -564,12 +564,14 @@
     let first = numbering("A.", parts.at(0))
 
     if parts.len() == 1 {
-      return "Appendix" + " " + first
+      return first
     }
     
     let rest = parts.slice(1).map(n => numbering("1.", n))
     return first + " " + rest.join(" ")
   }, supplement: [Appendix])
+
+  heading("Appendices", numbering: none)
 
   counter(heading).update(0)
   body
