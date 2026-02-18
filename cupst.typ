@@ -25,7 +25,7 @@
   
   // Article metadata
   manuscript: "article", // article, rescience, data, software, editorial, proceedings, poster
-  layout: "preprint",    // preprint, publish
+  layout: "preprint", // preprint, publish
   journal: "PREPRINT",
   year: datetime.today().year(),
   volume: none,
