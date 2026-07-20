@@ -9,6 +9,197 @@
 #import "@preview/orchid:0.1.0"
 
 // ============================================================
+// Multi-language support
+// ============================================================
+
+#let lang-data = (
+  en: (
+    received: "Received",
+    revised: "Revised",
+    accepted: "Accepted",
+    published: "Published",
+    editor: "Editor",
+    reviewers: "Reviewers",
+    abstract: "Abstract",
+    keywords: "Keywords",
+    corresponding-author: [*\*Corresponding author:*],
+    et-al: [~_et al._],
+    acknowledgement: "Acknowledgement",
+    reproducibility: "Reproducibility statement",
+    opendata: "Open data statement",
+    funding: "Funding statement",
+    credit: "Author contributions",
+    appendix: "Appendix",
+    appendices: "Appendices",
+    the-author-s: "The Author(s)",
+    open-access-statement: "This is an Open Access article, distributed under the terms of the Creative Commons Attribution 4.0 International (CC BY 4.0) licence",
+    which-permits: "which permits unrestricted re-use, distribution and reproduction, provided the original article is properly cited.",
+    cite-article: [*Cite this article:*],
+    preprint: "Preprint",
+    vol: "Vol.",
+    and0: "and",
+  ),
+  zh: (
+    received: "收稿",
+    revised: "修订",
+    accepted: "接收",
+    published: "发表",
+    editor: "责任编辑",
+    reviewers: "审稿人",
+    abstract: "摘要",
+    keywords: "关键词",
+    corresponding-author: [*\*通讯作者：*],
+    et-al: [~等],
+    acknowledgement: "致谢",
+    reproducibility: "可重复性声明",
+    opendata: "开放数据声明",
+    funding: "资助声明",
+    credit: "作者贡献",
+    appendix: "附录",
+    appendices: "附录",
+    the-author-s: "作者",
+    open-access-statement: "这是一篇开放获取文章，根据知识共享署名 4.0 国际 (CC BY 4.0) 许可协议的条款分发",
+    which-permits: "允许不受限制地重复使用、分发和复制，前提是原文章被正确引用。",
+    cite-article: [*引用本文：*],
+    preprint: "预印本",
+    vol: "卷",
+    and0: "和",
+  ),
+  fr: (
+    received: "Reçu",
+    revised: "Révisé",
+    accepted: "Accepté",
+    published: "Publié",
+    editor: "Éditeur",
+    reviewers: "Examinateurs",
+    abstract: "Résumé",
+    keywords: "Mots-clés",
+    corresponding-author: [*\*Auteur correspondant :*],
+    et-al: [~_et al._],
+    acknowledgement: "Remerciements",
+    reproducibility: "Déclaration de reproductibilité",
+    opendata: "Déclaration de données ouvertes",
+    funding: "Déclaration de financement",
+    credit: "Contributions des auteurs",
+    appendix: "Annexe",
+    appendices: "Annexes",
+    the-author-s: "L'auteur / Les auteurs",
+    open-access-statement: "Ceci est un article en libre accès, distribué selon les termes de la licence Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    which-permits: "qui permet une réutilisation, une distribution et une reproduction sans restriction, à condition que l'article original soit correctement cité.",
+    cite-article: [*Citer cet article :*],
+    preprint: "Prétirage",
+    vol: "Vol.",
+    and0: "et",
+  ),
+  de: (
+    received: "Eingegangen",
+    revised: "Überarbeitet",
+    accepted: "Akzeptiert",
+    published: "Veröffentlicht",
+    editor: "Redakteur",
+    reviewers: "Gutachter",
+    abstract: "Zusammenfassung",
+    keywords: "Schlüsselwörter",
+    corresponding-author: [*\*Korrespondierender Autor:*],
+    et-al: [~_et al._],
+    acknowledgement: "Danksagung",
+    reproducibility: "Reproduzierbarkeitserklärung",
+    opendata: "Open-Data-Erklärung",
+    funding: "Förderungserklärung",
+    credit: "Autorenbeiträge",
+    appendix: "Anhang",
+    appendices: "Anhänge",
+    the-author-s: "Der Autor / Die Autoren",
+    open-access-statement: "Dies ist ein Open-Access-Artikel, der unter den Bedingungen der Creative Commons Attribution 4.0 International (CC BY 4.0) Lizenz verbreitet wird",
+    which-permits: "die uneingeschränkte Weiterverwendung, Verbreitung und Vervielfältigung gestattet, sofern der Originalartikel ordnungsgemäß zitiert wird.",
+    cite-article: [*Diesen Artikel zitieren:*],
+    preprint: "Vorabdruck",
+    vol: "Bd.",
+    and0: "und",
+  ),
+  es: (
+    received: "Recibido",
+    revised: "Revisado",
+    accepted: "Aceptado",
+    published: "Publicado",
+    editor: "Editor",
+    reviewers: "Revisores",
+    abstract: "Resumen",
+    keywords: "Palabras clave",
+    corresponding-author: [*\*Autor de correspondencia:*],
+    et-al: [~_et al._],
+    acknowledgement: "Agradecimientos",
+    reproducibility: "Declaración de reproducibilidad",
+    opendata: "Declaración de datos abiertos",
+    funding: "Declaración de financiación",
+    credit: "Contribuciones de los autores",
+    appendix: "Apéndice",
+    appendices: "Apéndices",
+    the-author-s: "El autor / Los autores",
+    open-access-statement: "Este es un artículo de acceso abierto, distribuido bajo los términos de la licencia Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    which-permits: "que permite la reutilización, distribución y reproducción sin restricciones, siempre que se cite correctamente el artículo original.",
+    cite-article: [*Citar este artículo:*],
+    preprint: "Preimpresión",
+    vol: "Vol.",
+    and0: "y",
+  ),
+  ja: (
+    received: "受領",
+    revised: "改訂",
+    accepted: "受理",
+    published: "出版",
+    editor: "編集者",
+    reviewers: "査読者",
+    abstract: "要旨",
+    keywords: "キーワード",
+    corresponding-author: [*\*責任著者：*],
+    et-al: [~他],
+    acknowledgement: "謝辞",
+    reproducibility: "再現性声明",
+    opendata: "オープンデータ声明",
+    funding: "資金提供声明",
+    credit: "著者の貢献",
+    appendix: "付録",
+    appendices: "付録",
+    the-author-s: "著者",
+    open-access-statement: "これはクリエイティブ・コモンズ 表示 4.0 国際 (CC BY 4.0) ライセンスの条件に従って配布されるオープンアクセス記事です",
+    which-permits: "元の記事が適切に引用されている限り、無制限の再利用、配布、複製が許可されます。",
+    cite-article: [*この記事を引用：*],
+    preprint: "プレプリント",
+    vol: "巻",
+    and0: "および",
+  ),
+  ru: (
+    received: "Получено",
+    revised: "Переработано",
+    accepted: "Принято",
+    published: "Опубликовано",
+    editor: "Редактор",
+    reviewers: "Рецензенты",
+    abstract: "Аннотация",
+    keywords: "Ключевые слова",
+    corresponding-author: [*\*Ответственный автор:*],
+    et-al: [~_и др._],
+    acknowledgement: "Благодарности",
+    reproducibility: "Заявление о воспроизводимости",
+    opendata: "Заявление об открытых данных",
+    funding: "Заявление о финансировании",
+    credit: "Вклад авторов",
+    appendix: "Приложение",
+    appendices: "Приложения",
+    the-author-s: "Автор(ы)",
+    open-access-statement: "Это статья в открытом доступе, распространяемая на условиях лицензии Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    which-permits: "которая разрешает неограниченное повторное использование, распространение и воспроизведение при условии надлежащего цитирования оригинальной статьи.",
+    cite-article: [*Цитировать эту статью:*],
+    preprint: "Препринт",
+    vol: "Т.",
+    and0: "и",
+  ),
+)
+
+#let lang-state = state("cupst-lang", "en")
+
+// ============================================================
 // Main document template
 // ============================================================
 
@@ -51,9 +242,29 @@
   serif-fonts: ("Linux Libertine", "Libertinus Serif", "Times New Roman"),
   sans-fonts: ("Source Sans Pro", "Source Sans 3", "Arial"),
   
+  // Multi-language
+  lang: "en",
+  
   // Content
   body
 ) = {
+  // ============================================================
+  // Language setup
+  // ============================================================
+  
+  let current-lang = lang
+  if lang not in lang-data {
+    // Fallback to English and log error visually
+    block[
+      #set text(fill: red)
+      *ERROR: Unsupported language '#lang', falling back to English.*
+    ]
+    current-lang = "en"
+  }
+  lang-state.update(current-lang)
+  let dict = lang-data.at(current-lang)
+  let tr(key) = dict.at(key)
+
   // ============================================================
   // Page setup
   // ============================================================
@@ -79,7 +290,7 @@
           h(1em)
           if authors.len() > 0 {
             authors.at(0).name
-            if authors.len() > 1 [~_et al._]
+            if authors.len() > 1 [ #tr("et-al") ]
           }
           h(1fr)
         }
@@ -89,7 +300,7 @@
         block[
           #text(style: "italic")[#journal]
           #if layout == "publish" and year != none and volume != none [
-            (#year), Vol.#text(weight: "semibold")[#volume]
+            (#year), #tr("vol")#text(weight: "semibold")[#volume]
           ]
           #linebreak()
           #if layout == "publish" and doi != none [
@@ -109,7 +320,7 @@
   set text(
     font: serif-fonts,
     size: 10pt,
-    lang: "en",
+    lang: current-lang,
     hyphenate: false,
   )
   
@@ -221,18 +432,16 @@
   // Cambridge-core-like footnote
   // ============================================================
   show footnote.entry: it => {
-      let loc = it.note.location()
-      let number = numbering("1", ..counter(footnote).at(loc))
-      grid(
-        columns: (auto, 1fr),
-        gutter: 0.5em,
-        text(
-          fill: structure-color,
-          font: sans-fonts,
-          weight: "semibold"
-        )[#number.],
-        it.note.body
-      )
+    let loc = it.note.location()
+    let number = numbering("1", ..counter(footnote).at(loc))
+    [
+      #text(
+        fill: structure-color, 
+        font: sans-fonts, 
+        weight: "semibold"
+      )[#number.]
+      #it.note.body
+    ]
   }
   
   // ============================================================
@@ -311,7 +520,7 @@
           weight: "semibold",
           fill: structure-color,
         )[
-          (_Preprint_)
+          (_#tr("preprint")_)
         ]
       ]
     ]
@@ -361,15 +570,15 @@
         [#author.name#marker-text#orcid]
       })
       
-      // Join authors with commas and "and"
+      // Join authors with commas and translated "and"
       #if author-parts.len() == 1 {
         author-parts.first()
       } else if author-parts.len() == 2 {
-        [#author-parts.at(0) and #author-parts.at(1)]
+        [#author-parts.at(0) #tr("and0") #author-parts.at(1)]
       } else {
         for (i, part) in author-parts.enumerate() {
           if i == author-parts.len() - 1 {
-            [, and #part]
+            [, #tr("and0") #part]
           } else if i == 0 {
             part
           } else {
@@ -401,7 +610,7 @@
       if corresponding.len() > 0 {
         block[
           #set text(size: 9pt)
-          *\*Corresponding author:* #corresponding.map(a => {
+          #tr("corresponding-author") #corresponding.map(a => {
             link("mailto:" + a.email)[#a.email]
           }).join("; ")
         ]
@@ -413,8 +622,8 @@
     if layout == "publish" and show-dates {
       block[
         #set text(size: 9pt)
-        (Received: #received\; Revised: #revised\; Accepted: #accepted\; Published: #published) \
-        (Editor: #editor\; Reviewers: #reviewers)
+        (#tr("received"): #received\; #tr("revised"): #revised\; #tr("accepted"): #accepted\; #tr("published"): #published) \
+        (#tr("editor"): #editor\; #tr("reviewers"): #reviewers)
       ]
       v(0.5em)
     }
@@ -427,12 +636,10 @@
         clearance: 1em,
         block(width: 100%, inset: (top: 0.5em))[
               #set text(size: 7pt)
-              © The Author(s), #year.
-              This is an Open Access article, distributed under the terms of the
-              Creative Commons Attribution 4.0 International (CC BY 4.0) licence
+              © #tr("the-author-s"), #year.
+              #tr("open-access-statement")
               (#link("https://creativecommons.org/licenses/by/4.0/")), 
-              which permits unrestricted re-use, distribution and
-              reproduction, provided the original article is properly cited.
+              #tr("which-permits")
         ]
       )
     }
@@ -454,7 +661,7 @@
         font: sans-fonts,
         weight: "semibold",
         size: 10pt
-      )[Abstract]
+      )[#tr("abstract")]
       #v(3pt)
       #text(size: 9pt)[#abstract]
     ]
@@ -466,7 +673,7 @@
     block[
       #set par(first-line-indent: 0pt)
       #set text(size: 9pt)
-      *Keywords:* #keywords.join(", ")
+      *#tr("keywords"):* #keywords.join(", ")
     ]
     v(0.3em)
   }
@@ -493,10 +700,10 @@
         #set text(size: 7pt)
         #set align(left)
         
-        *Cite this article:* #{
+        #tr("cite-article") #{
           if authors.len() > 0 {
             authors.at(0).name
-            if authors.len() > 1 [~_et al._]
+            if authors.len() > 1 [ #tr("et-al") ]
           }
         } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
       ]
@@ -520,15 +727,30 @@
 // Special sections (unnumbered)
 // ============================================================
 
-#let acknowledgement(body) = paragraph("Acknowledgement")[#body]
+#let acknowledgement(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  paragraph(dict.acknowledgement)[#body]
+}
 
-#let reproduce(body) = paragraph("Reproducibility statement")[#body]
+#let reproduce(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  paragraph(dict.reproducibility)[#body]
+}
 
-#let opendata(body) = paragraph("Open data statement")[#body]
+#let opendata(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  paragraph(dict.opendata)[#body]
+}
 
-#let funding(body) = paragraph("Funding statement")[#body]
+#let funding(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  paragraph(dict.funding)[#body]
+}
 
-#let credit(body) = paragraph("Author contributions")[#body]
+#let credit(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  paragraph(dict.credit)[#body]
+}
 
 // ============================================================
 // citation
@@ -558,7 +780,9 @@
 }
 
 
-#let appendix(body) = {
+#let appendix(body) = context {
+  let dict = lang-data.at(lang-state.get(), default: lang-data.en)
+  
   set heading(numbering: (..nums) => {
     let parts = nums.pos()
     let first = numbering("A.", parts.at(0))
@@ -569,9 +793,9 @@
     
     let rest = parts.slice(1).map(n => numbering("1.", n))
     return first + " " + rest.join(" ")
-  }, supplement: [Appendix])
+  }, supplement: dict.appendix)
 
-  heading("Appendices", numbering: none)
+  heading(dict.appendices, numbering: none)
 
   counter(heading).update(0)
   body
