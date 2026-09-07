@@ -24,7 +24,7 @@
     keywords: "Keywords",
     corresponding-author: [*\*Corresponding author:*],
     et-al: [~_et al._],
-    acknowledgement: "Acknowledgement",
+    acknowledgement: "Acknowledgements",
     reproducibility: "Reproducibility statement",
     opendata: "Open data statement",
     funding: "Funding statement",
