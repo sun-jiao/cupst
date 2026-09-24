@@ -238,6 +238,7 @@
   show-email: true,
   show-line-numbers: true,
   section-numbering: true,
+  equation-numbering: "(1)",
 
   serif-fonts: ("Linux Libertine", "Libertinus Serif", "Times New Roman"),
   sans-fonts: ("Source Sans Pro", "Source Sans 3", "Arial"),
@@ -427,6 +428,11 @@
   show link: it => text(fill: link-color)[#underline(it)]
   show ref: it => text(fill: link-color)[#it]
   show cite: set text(fill: link-color)
+  
+  // ============================================================
+  // Math equation styling
+  // ============================================================
+  set math.equation(numbering: equation-numbering)
   
   // ============================================================
   // Cambridge-core-like footnote
