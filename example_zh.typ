@@ -36,6 +36,7 @@
   // Article settings
   manuscript: "article",  // article, rescience, data, software, editorial, proceedings, poster
   layout: "publish",     // preprint, publish
+  paper-size: "medium",  // large (210×280mm, two-column), medium (174×247mm), small (152×228mm)
   journal: "临江水利水运学报",
   year: 2026,
   volume: 18,

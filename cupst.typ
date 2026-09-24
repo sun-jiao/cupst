@@ -198,6 +198,7 @@
 )
 
 #let lang-state = state("cupst-lang", "en")
+#let paper-size-state = state("cupst-paper-size", "medium")
 
 // ============================================================
 // Main document template
@@ -217,6 +218,8 @@
   // Article metadata
   manuscript: "article", // article, rescience, data, software, editorial, proceedings, poster
   layout: "preprint", // preprint, publish
+  paper-size: "medium", // large (210×280mm, two-column), medium (174×247mm), small (152×228mm)
+  column-gutter: 5mm,
   journal: "PREPRINT",
   year: datetime.today().year(),
   volume: none,
@@ -263,20 +266,36 @@
     current-lang = "en"
   }
   lang-state.update(current-lang)
+  paper-size-state.update(paper-size)
   let dict = lang-data.at(current-lang)
   let tr(key) = dict.at(key)
+
+  // ============================================================
+  // Paper size configuration
+  // ============================================================
+
+  let paper-sizes = (
+    large:  (width: 210mm, height: 280mm, margin: (left: 15mm, right: 14mm, top: 23mm, bottom: 17mm)),
+    medium: (width: 174mm, height: 247mm, margin: (left: 18mm, right: 15mm, top: 23mm, bottom: 14mm)),
+    small:  (width: 152mm, height: 228mm, margin: (left: 17mm, right: 15mm, top: 20mm, bottom: 15mm)),
+  )
+  let psize = paper-sizes.at(paper-size)
+  let is-twocol = paper-size == "large"
 
   // ============================================================
   // Page setup
   // ============================================================
   
   set page(
-    width: 6in,
-    height: 9in,
+    width: psize.width,
+    height: psize.height,
     margin: (
-      top: 2.4cm,
-      rest: 1.6cm,
+      left: psize.margin.left,
+      right: psize.margin.right,
+      top: psize.margin.top,
+      bottom: psize.margin.bottom,
     ),
+    columns: if is-twocol { 2 } else { 1 },
     header: context {
       let page-num = counter(page).get().first()
       if page-num > 1 {
@@ -507,7 +526,8 @@
   // Title page content
   // ============================================================
   
-  {
+  // Build the title area content (used for both single and two-column modes)
+  let title-area = {
     set par(first-line-indent: 0pt)
     
     // Manuscript type badge
@@ -649,45 +669,52 @@
         ]
       )
     }
+
+    // Abstract
+    if abstract != none {
+      block(
+        fill: structure-color.lighten(90%),
+        inset: (x: 10pt, top: 8pt, bottom: 10pt),
+        width: 100%,
+        radius: 0pt,
+      )[
+        #set par(first-line-indent: 0pt)
+        #text(
+          font: sans-fonts,
+          weight: "semibold",
+          size: 10pt
+        )[#tr("abstract")]
+        #v(3pt)
+        #text(size: 9pt)[#abstract]
+      ]
+      v(0.5em)
+    }
+
+    // Keywords
+    if show-keywords and keywords.len() > 0 {
+      block[
+        #set par(first-line-indent: 0pt)
+        #set text(size: 9pt)
+        *#tr("keywords"):* #keywords.join(", ")
+      ]
+      v(0.3em)
+    }
+  }
+
+  // ============================================================
+  // Title page content (spans both columns in two-column mode)
+  // ============================================================
+
+  if is-twocol {
+    place(top, scope: "parent", float: true, title-area)
+  } else {
+    title-area
   }
   
   // ============================================================
-  // Abstract
+  // Line numbers and body rendering
   // ============================================================
-  
-  if abstract != none {
-    block(
-      fill: structure-color.lighten(90%),
-      inset: (x: 10pt, top: 8pt, bottom: 10pt),
-      width: 100%,
-      radius: 0pt,
-    )[
-      #set par(first-line-indent: 0pt)
-      #text(
-        font: sans-fonts,
-        weight: "semibold",
-        size: 10pt
-      )[#tr("abstract")]
-      #v(3pt)
-      #text(size: 9pt)[#abstract]
-    ]
-    v(0.5em)
-  }
-  
-  // Keywords
-  if show-keywords and keywords.len() > 0 {
-    block[
-      #set par(first-line-indent: 0pt)
-      #set text(size: 9pt)
-      *#tr("keywords"):* #keywords.join(", ")
-    ]
-    v(0.3em)
-  }
-  
-  // ============================================================
-  // Line numbers for preprint
-  // ============================================================
-  
+
   if layout == "preprint" and show-line-numbers {
     set par.line(numbering: "1", numbering-scope: "page")
     body
@@ -714,6 +741,49 @@
         } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
       ]
     )
+  }
+}
+
+// ============================================================
+// Full-width spanning (for two-column mode)
+// ============================================================
+
+/// Places content spanning both columns in two-column (`large`) mode.
+/// In single-column (`medium` / `small`) mode, the content is rendered normally.
+///
+/// - `breakable`:
+///   - When `false` (default): Placed as a floating block across both columns
+///     at the top of the page (using `place(top, scope: "parent", float: true)`).
+///     Suitable for figures and standard single-page tables.
+///   - When `true`: Switches to a dedicated single-column page region
+///     (`page(columns: 1, ...)`), allowing the table to naturally break
+///     across multiple pages. (Triggers page breaks before and after).
+///
+/// ```typ
+/// // Single-page float (figure / standard table)
+/// #full-width[
+///   #figure(
+///     table(...),
+///     caption: [A wide table spanning both columns.],
+///   )
+/// ]
+///
+/// // Multi-page table (e.g. in appendix or dedicated table section)
+/// #full-width(breakable: true)[
+///   #figure(
+///     table(
+///       columns: (1fr, 2fr, 2fr),
+///       ..rows,
+///     ),
+///     caption: [A long table that spans multiple pages.],
+///   )
+/// ]
+/// ```
+#let full-width(breakable: false, body) = {
+  if breakable {
+    page(columns: 1, body)
+  } else {
+    place(top, scope: "parent", float: true, body)
   }
 }
 

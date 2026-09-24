@@ -36,6 +36,7 @@
   // Article settings
   manuscript: "article",  // article, rescience, data, software, editorial, proceedings, poster
   layout: "publish",     // preprint, publish
+  paper-size: "large",   // large (210×280mm, two-column), medium (174×247mm), small (152×228mm)
   journal: "Journal of Open Information Systems",
   year: 2026,
   volume: 4,
@@ -252,6 +253,32 @@ We compare our method with classic and recent baselines. Results are recorded ac
 ) <tab:bench>
 
 As observed in @tab:bench, our model consistently surpasses all competing architectures across both relational and attribute-oriented evaluation metrics.
+
+// Full-width figure spanning both columns (demonstrating the full-width function)
+#full-width[
+  #figure(
+    table(
+      columns: (1.5fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
+      align: (left, center, center, center, center, center, center),
+      stroke: none,
+      table.hline(stroke: 1.2pt),
+      table.header(
+        table.cell(rowspan: 2, align: horizon)[*Model*],
+        table.cell(colspan: 3)[*Dataset A*],
+        table.cell(colspan: 3)[*Dataset B*],
+        table.hline(stroke: 0.4pt),
+        [*Prec.*], [*Rec.*], [*F1*], [*Prec.*], [*Rec.*], [*F1*],
+      ),
+      table.hline(stroke: 0.6pt),
+      [GCN],      [74.2], [71.8], [73.0], [69.5], [67.2], [68.3],
+      [GAT],      [78.5], [76.1], [77.3], [73.8], [72.4], [73.1],
+      [HGT],      [82.1], [80.7], [81.4], [78.6], [77.3], [77.9],
+      [*Proposed*], [*88.3*], [*87.1*], [*87.7*], [*85.2*], [*84.6*], [*84.9*],
+      table.hline(stroke: 1.2pt),
+    ),
+    caption: [Cross-dataset generalization evaluation (full-width table spanning both columns).],
+  ) <tab:cross>
+]
 
 == Convergence and Training Dynamics
 
