@@ -788,6 +788,119 @@
 }
 
 // ============================================================
+// Multi-page Split Table (for two-column mode)
+// ============================================================
+
+/// Splits a long table across multiple pages in two-column mode without
+/// forcing page breaks or leaving blank spaces. Each chunk floats to the
+/// top of consecutive pages, while two-column body text flows naturally
+/// underneath. Continuation captions automatically append " (continued)".
+///
+/// - `columns`: Table column definition (e.g. `(1fr, 2fr, 2fr)` or `3`).
+/// - `header`: Array of header cells (e.g. `([*ID*], [*Param*], [*Value*])`).
+/// - `rows`: Array of row arrays `( ([..], [..]), ... )` or flat list of cells.
+/// - `caption`: Caption for the table.
+/// - `label`: Optional label to attach to the first figure (e.g. `<tab:params>`).
+/// - `rows-per-page`: Number of data rows per page chunk (default: `25`).
+/// - `stroke`: Cell border stroke (default: `none` for academic three-line table).
+/// - `align`: Cell alignment (default: `auto`).
+/// - `continued-suffix`: Custom continuation suffix for subsequent page captions.
+///
+/// ```typ
+/// #split-table(
+///   columns: (1fr, 2fr, 2fr),
+///   header: ([*ID*], [*Param Name*], [*Value*]),
+///   rows: range(60).map(i => ([#i], [Parameter #i], [$alpha_#i = 0.#i$])),
+///   caption: [Complete parameter inventory across all experimental runs.],
+///   label: <tab:params>,
+///   rows-per-page: 25,
+/// )
+/// ```
+#let split-table(
+  columns: (),
+  header: (),
+  rows: (),
+  caption: none,
+  label: none,
+  rows-per-page: 25,
+  stroke: none,
+  align: auto,
+  continued-suffix: none,
+) = context {
+  let is-twocol = paper-size-state.get() == "large"
+  let lang = lang-state.get()
+  let default-suffix = if lang == "zh" [ (续)] else [ (continued)]
+  let suffix = if continued-suffix != none { continued-suffix } else { default-suffix }
+
+  let num-cols = if type(columns) == int { columns } else { columns.len() }
+  let row-list = ()
+
+  if rows.len() > 0 and type(rows.at(0)) == array {
+    row-list = rows
+  } else {
+    for i in range(0, calc.div-ceil(rows.len(), num-cols)) {
+      let start = i * num-cols
+      let end = calc.min(rows.len(), start + num-cols)
+      row-list.push(rows.slice(start, end))
+    }
+  }
+
+  let chunks = ()
+  let current-chunk = ()
+  for row in row-list {
+    current-chunk.push(row)
+    if current-chunk.len() >= rows-per-page {
+      chunks.push(current-chunk)
+      current-chunk = ()
+    }
+  }
+  if current-chunk.len() > 0 {
+    chunks.push(current-chunk)
+  }
+
+  for (i, chunk) in chunks.enumerate() {
+    let cap = if i == 0 {
+      caption
+    } else if caption != none {
+      [#caption#suffix]
+    } else {
+      none
+    }
+
+    if i > 0 {
+      counter(figure.where(kind: table)).update(n => n - 1)
+    }
+
+    let tbl = table(
+      columns: columns,
+      align: align,
+      stroke: stroke,
+      table.hline(stroke: 1.2pt),
+      if header.len() > 0 {
+        table.header(..header)
+      },
+      table.hline(stroke: 0.6pt),
+      ..chunk.flatten(),
+      table.hline(stroke: 1.2pt),
+    )
+
+    let fig = if i == 0 and label != none {
+      [#figure(tbl, caption: cap) #label]
+    } else {
+      figure(tbl, caption: cap)
+    }
+
+    if is-twocol {
+      place(top, scope: "parent", float: true, fig)
+    } else {
+      fig
+    }
+  }
+}
+
+#let full-width-table = split-table
+
+// ============================================================
 // Paragraph 
 // ============================================================
 #let paragraph(title, body) = {
