@@ -38,6 +38,7 @@
     preprint: "Preprint",
     vol: "Vol.",
     and0: "and",
+    continued: " (continued)",
   ),
   zh: (
     received: "收稿",
@@ -64,6 +65,7 @@
     preprint: "预印本",
     vol: "卷",
     and0: "和",
+    continued: "（续）",
   ),
   fr: (
     received: "Reçu",
@@ -90,6 +92,7 @@
     preprint: "Prétirage",
     vol: "Vol.",
     and0: "et",
+    continued: " (suite)",
   ),
   de: (
     received: "Eingegangen",
@@ -116,6 +119,7 @@
     preprint: "Vorabdruck",
     vol: "Bd.",
     and0: "und",
+    continued: " (Fortsetzung)",
   ),
   es: (
     received: "Recibido",
@@ -142,6 +146,7 @@
     preprint: "Preimpresión",
     vol: "Vol.",
     and0: "y",
+    continued: " (continuación)",
   ),
   ja: (
     received: "受領",
@@ -168,6 +173,7 @@
     preprint: "プレプリント",
     vol: "巻",
     and0: "および",
+    continued: "（続き）",
   ),
   ru: (
     received: "Получено",
@@ -194,6 +200,7 @@
     preprint: "Препринт",
     vol: "Т.",
     and0: "и",
+    continued: " (продолжение)",
   ),
 )
 
@@ -657,18 +664,30 @@
   
     // Copyright notice
     if layout == "publish" and show-copyright {
-      place(
-        bottom + left,
-        float: true,
-        clearance: 1em,
-        block(width: 100%, inset: (top: 0.5em))[
-              #set text(size: 7pt)
-              © #tr("the-author-s"), #year.
-              #tr("open-access-statement")
-              (#link("https://creativecommons.org/licenses/by/4.0/")), 
-              #tr("which-permits")
-        ]
-      )
+      context {
+        if target() != "html" {
+          place(
+            bottom + left,
+            float: true,
+            clearance: 1em,
+            block(width: 100%, inset: (top: 0.5em))[
+                  #set text(size: 7pt)
+                  © #tr("the-author-s"), #year.
+                  #tr("open-access-statement")
+                  (#link("https://creativecommons.org/licenses/by/4.0/")), 
+                  #tr("which-permits")
+            ]
+          )
+        } else {
+          block(width: 100%, inset: (top: 0.5em))[
+            #set text(size: 7pt)
+            © #tr("the-author-s"), #year.
+            #tr("open-access-statement")
+            (#link("https://creativecommons.org/licenses/by/4.0/")), 
+            #tr("which-permits")
+          ]
+        }
+      }
     }
 
     // Abstract
@@ -706,10 +725,12 @@
   // Title page content (spans both columns in two-column mode)
   // ============================================================
 
-  if is-twocol {
-    place(top, scope: "parent", float: true, title-area)
-  } else {
-    title-area
+  context {
+    if is-twocol and target() != "html" {
+      place(top, scope: "parent", float: true, title-area)
+    } else {
+      title-area
+    }
   }
   
   // ============================================================
@@ -724,24 +745,40 @@
   }
 
   if layout == "publish" and show-copyright {
-    place(
-      bottom + left,
-      float: true,
-      clearance: 1em,
-      block(width: 100%, inset: (top: 0.5em))[
-        #line(length: 30%, stroke: 0.5pt)
-        
-        #set text(size: 7pt)
-        #set align(left)
-        
-        #tr("cite-article") #{
-          if authors.len() > 0 {
-            authors.at(0).name
-            if authors.len() > 1 [ #tr("et-al") ]
-          }
-        } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
-      ]
-    )
+    context {
+      if target() != "html" {
+        place(
+          bottom + left,
+          float: true,
+          clearance: 1em,
+          block(width: 100%, inset: (top: 0.5em))[
+            #line(length: 30%, stroke: 0.5pt)
+            
+            #set text(size: 7pt)
+            #set align(left)
+            
+            #tr("cite-article") #{
+              if authors.len() > 0 {
+                authors.at(0).name
+                if authors.len() > 1 [ #tr("et-al") ]
+              }
+            } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
+          ]
+        )
+      } else {
+        block(width: 100%, inset: (top: 0.5em))[
+          #line(length: 30%, stroke: 0.5pt)
+          #set text(size: 7pt)
+          #set align(left)
+          #tr("cite-article") #{
+            if authors.len() > 0 {
+              authors.at(0).name
+              if authors.len() > 1 [ #tr("et-al") ]
+            }
+          } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
+        ]
+      }
+    }
   }
 }
 
@@ -780,8 +817,10 @@
 ///   )
 /// ]
 /// ```
-#let full-width(breakable: false, body) = {
-  if breakable {
+#let full-width(breakable: false, body) = context {
+  if target() == "html" {
+    body
+  } else if breakable {
     page(columns: 1, body)
   } else {
     place(top, scope: "parent", float: true, body)
@@ -846,7 +885,8 @@
 ) = context {
   let is-twocol = paper-size-state.get() == "large"
   let lang = lang-state.get()
-  let default-suffix = if lang == "zh" [ (续)] else [ (continued)]
+  let lang-dict = lang-data.at(lang, default: lang-data.en)
+  let default-suffix = [#(lang-dict.at("continued", default: " (continued)"))]
   let suffix = if continued-suffix != none { continued-suffix } else { default-suffix }
 
   let num-cols = if type(columns) == int { columns } else { columns.len() }
@@ -906,9 +946,7 @@
         [#caption#suffix]
       } else {
         // Output "Table 1 (continued)" without repeating caption content
-        let cont-text = if lang == "zh" [ (续)] else [ (continued)]
-        let s = if continued-suffix != none { continued-suffix } else { cont-text }
-        figure.caption(separator: none)[#s]
+        figure.caption(separator: none)[#suffix]
       }
     } else {
       none
@@ -937,6 +975,10 @@
     } else {
       figure(tbl, caption: cap)
     }
+  }
+
+  if target() == "html" {
+    return make-fig(0, row-list)
   }
 
   // Calculate target height for a specific page chunk
@@ -1012,9 +1054,18 @@
     let fig = make-fig(i, chunk)
 
     if is-twocol {
-      place(top, scope: "parent", float: true, fig)
+      if i < chunks.len() - 1 {
+        // Table has not ended yet: occupy 100% height so no body text infiltrates the bottom whitespace
+        place(top, scope: "parent", float: true, block(width: 100%, height: 100%, fig))
+      } else {
+        // Final chunk: take only natural height so body text CAN continue in the remaining space
+        place(top, scope: "parent", float: true, fig)
+      }
     } else {
       fig
+      if i < chunks.len() - 1 {
+        pagebreak()
+      }
     }
   }
 }
@@ -1024,8 +1075,10 @@
 // ============================================================
 // Paragraph 
 // ============================================================
-#let paragraph(title, body) = {
-  place(hide(heading(level: 1, numbering: none)[#title]))
+#let paragraph(title, body) = context {
+  if target() != "html" {
+    place(hide(heading(level: 1, numbering: none)[#title]))
+  }
   set par(first-line-indent: 0pt)
   v(1em)
   [#title<paragraph-title>] 
