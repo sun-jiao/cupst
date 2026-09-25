@@ -662,34 +662,6 @@
       v(0.5em)
     }
   
-    // Copyright notice
-    if layout == "publish" and show-copyright {
-      context {
-        if target() != "html" {
-          place(
-            bottom + left,
-            float: true,
-            clearance: 1em,
-            block(width: 100%, inset: (top: 0.5em))[
-                  #set text(size: 7pt)
-                  © #tr("the-author-s"), #year.
-                  #tr("open-access-statement")
-                  (#link("https://creativecommons.org/licenses/by/4.0/")), 
-                  #tr("which-permits")
-            ]
-          )
-        } else {
-          block(width: 100%, inset: (top: 0.5em))[
-            #set text(size: 7pt)
-            © #tr("the-author-s"), #year.
-            #tr("open-access-statement")
-            (#link("https://creativecommons.org/licenses/by/4.0/")), 
-            #tr("which-permits")
-          ]
-        }
-      }
-    }
-
     // Abstract
     if abstract != none {
       block(
@@ -721,6 +693,19 @@
     }
   }
 
+  // Copyright notice for page 1 bottom
+  let copyright-notice = if layout == "publish" and show-copyright {
+    block(width: 100%, inset: (top: 0.5em))[
+      #set text(size: 7pt)
+      © #tr("the-author-s"), #year.
+      #tr("open-access-statement")
+      (#link("https://creativecommons.org/licenses/by/4.0/")), 
+      #tr("which-permits")
+    ]
+  } else {
+    none
+  }
+
   // ============================================================
   // Title page content (spans both columns in two-column mode)
   // ============================================================
@@ -728,8 +713,16 @@
   context {
     if is-twocol and target() != "html" {
       place(top, scope: "parent", float: true, title-area)
+      if copyright-notice != none {
+        place(bottom + left, scope: "parent", float: true, clearance: 1em, copyright-notice)
+      }
     } else {
       title-area
+      if copyright-notice != none and target() != "html" {
+        place(bottom + left, float: true, clearance: 1em, copyright-notice)
+      } else if copyright-notice != none {
+        copyright-notice
+      }
     }
   }
   
@@ -746,37 +739,37 @@
 
   if layout == "publish" and show-copyright {
     context {
+      let cite-block = block(width: 100%, inset: (top: 0.5em))[
+        #line(length: 30%, stroke: 0.5pt)
+        #set text(size: 7pt)
+        #set align(left)
+        #tr("cite-article") #{
+          if authors.len() > 0 {
+            authors.at(0).name
+            if authors.len() > 1 [ #tr("et-al") ]
+          }
+        } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
+      ]
+
       if target() != "html" {
-        place(
-          bottom + left,
-          float: true,
-          clearance: 1em,
-          block(width: 100%, inset: (top: 0.5em))[
-            #line(length: 30%, stroke: 0.5pt)
-            
-            #set text(size: 7pt)
-            #set align(left)
-            
-            #tr("cite-article") #{
-              if authors.len() > 0 {
-                authors.at(0).name
-                if authors.len() > 1 [ #tr("et-al") ]
-              }
-            } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
-          ]
-        )
+        if is-twocol {
+          place(
+            bottom + left,
+            scope: "parent",
+            float: true,
+            clearance: 1em,
+            cite-block
+          )
+        } else {
+          place(
+            bottom + left,
+            float: true,
+            clearance: 1em,
+            cite-block
+          )
+        }
       } else {
-        block(width: 100%, inset: (top: 0.5em))[
-          #line(length: 30%, stroke: 0.5pt)
-          #set text(size: 7pt)
-          #set align(left)
-          #tr("cite-article") #{
-            if authors.len() > 0 {
-              authors.at(0).name
-              if authors.len() > 1 [ #tr("et-al") ]
-            }
-          } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
-        ]
+        cite-block
       }
     }
   }
