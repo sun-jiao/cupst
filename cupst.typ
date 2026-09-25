@@ -794,38 +794,52 @@
 /// Splits a long table across multiple pages in two-column mode without
 /// forcing page breaks or leaving blank spaces. Each chunk floats to the
 /// top of consecutive pages, while two-column body text flows naturally
-/// underneath. Continuation captions automatically append " (continued)".
+/// underneath. Continuation captions automatically append " (continued)" or " (续)".
+///
+/// Supports native `table` syntax with comma-separated positional cells!
 ///
 /// - `columns`: Table column definition (e.g. `(1fr, 2fr, 2fr)` or `3`).
-/// - `header`: Array of header cells (e.g. `([*ID*], [*Param*], [*Value*])`).
-/// - `rows`: Array of row arrays `( ([..], [..]), ... )` or flat list of cells.
 /// - `caption`: Caption for the table.
 /// - `label`: Optional label to attach to the first figure (e.g. `<tab:params>`).
+/// - `header`: Optional header cells if not using `table.header(...)`.
 /// - `rows-per-page`: Number of data rows per page chunk (default: `25`).
 /// - `stroke`: Cell border stroke (default: `none` for academic three-line table).
 /// - `align`: Cell alignment (default: `auto`).
 /// - `continued-suffix`: Custom continuation suffix for subsequent page captions.
+/// - `repeat-caption`: Whether to repeat the full caption text on continuation
+///   pages (default: `true`). If `false`, subsequent pages directly display
+///   `Table 1 (continued)` or `表 1 (续)` without repeating the title.
+/// - `rows`: Optional named array of rows for backward compatibility.
+/// - `..args`: Native table cells and `table.header(...)` elements.
 ///
 /// ```typ
+/// // Native table syntax — write cells directly!
 /// #split-table(
 ///   columns: (1fr, 2fr, 2fr),
-///   header: ([*ID*], [*Param Name*], [*Value*]),
-///   rows: range(60).map(i => ([#i], [Parameter #i], [$alpha_#i = 0.#i$])),
 ///   caption: [Complete parameter inventory across all experimental runs.],
 ///   label: <tab:params>,
 ///   rows-per-page: 25,
+///   repeat-caption: false, // subsequent pages show Table 1 (continued)
+///
+///   table.header([*ID*], [*Param Name*], [*Value*]),
+///   [1], [Learning Rate], [$1.0 times 10^(-3)$],
+///   [2], [Batch Size], [2048],
+///   [3], [Hidden Dim], [256],
+///   // ... any number of cells!
 /// )
 /// ```
 #let split-table(
   columns: (),
-  header: (),
-  rows: (),
+  rows: auto,
   caption: none,
   label: none,
+  header: none,
   rows-per-page: 25,
   stroke: none,
   align: auto,
+  repeat-caption: true,
   continued-suffix: none,
+  ..args,
 ) = context {
   let is-twocol = paper-size-state.get() == "large"
   let lang = lang-state.get()
@@ -833,18 +847,45 @@
   let suffix = if continued-suffix != none { continued-suffix } else { default-suffix }
 
   let num-cols = if type(columns) == int { columns } else { columns.len() }
-  let row-list = ()
 
-  if rows.len() > 0 and type(rows.at(0)) == array {
-    row-list = rows
-  } else {
-    for i in range(0, calc.div-ceil(rows.len(), num-cols)) {
-      let start = i * num-cols
-      let end = calc.min(rows.len(), start + num-cols)
-      row-list.push(rows.slice(start, end))
+  // Extract header element and data cells from positional arguments
+  let header-elem = none
+  let all-cells = ()
+
+  for arg in args.pos() {
+    if arg.func() == table.header {
+      header-elem = arg
+    } else if arg.func() == table.hline {
+      // Outer hlines are handled by our standard academic table format
+    } else {
+      all-cells.push(arg)
     }
   }
 
+  // Row sizing for table (e.g. auto or list of lengths)
+  let row-sizing = auto
+
+  // Check if legacy nested array rows: (([..], [..]), ...) was passed
+  if type(rows) == array and rows.len() > 0 and type(rows.at(0)) == array {
+    for r in rows {
+      for c in r {
+        all-cells.push(c)
+      }
+    }
+  } else {
+    row-sizing = rows
+  }
+
+  // Slice into rows
+  let row-list = ()
+  let total-rows = calc.ceil(all-cells.len() / num-cols)
+  for i in range(0, total-rows) {
+    let start = i * num-cols
+    let end = calc.min(all-cells.len(), start + num-cols)
+    row-list.push(all-cells.slice(start, end))
+  }
+
+  // Chunk rows by rows-per-page
   let chunks = ()
   let current-chunk = ()
   for row in row-list {
@@ -858,11 +899,27 @@
     chunks.push(current-chunk)
   }
 
+  // Determine header to repeat on each page
+  let effective-header = if header-elem != none {
+    header-elem
+  } else if header != none and header.len() > 0 {
+    table.header(..header)
+  } else {
+    none
+  }
+
   for (i, chunk) in chunks.enumerate() {
     let cap = if i == 0 {
       caption
     } else if caption != none {
-      [#caption#suffix]
+      if repeat-caption {
+        [#caption#suffix]
+      } else {
+        // Output "Table 1 (continued)" without repeating caption content
+        let cont-text = if lang == "zh" [ (续)] else [ (continued)]
+        let s = if continued-suffix != none { continued-suffix } else { cont-text }
+        figure.caption(separator: none)[#s]
+      }
     } else {
       none
     }
@@ -873,11 +930,12 @@
 
     let tbl = table(
       columns: columns,
+      rows: row-sizing,
       align: align,
       stroke: stroke,
       table.hline(stroke: 1.2pt),
-      if header.len() > 0 {
-        table.header(..header)
+      if effective-header != none {
+        effective-header
       },
       table.hline(stroke: 0.6pt),
       ..chunk.flatten(),
