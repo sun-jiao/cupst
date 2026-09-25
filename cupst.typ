@@ -200,6 +200,12 @@
 #let lang-state = state("cupst-lang", "en")
 #let paper-size-state = state("cupst-paper-size", "medium")
 
+#let paper-sizes = (
+  large:  (width: 210mm, height: 280mm, margin: (left: 15mm, right: 14mm, top: 23mm, bottom: 17mm)),
+  medium: (width: 174mm, height: 247mm, margin: (left: 18mm, right: 15mm, top: 23mm, bottom: 14mm)),
+  small:  (width: 152mm, height: 228mm, margin: (left: 17mm, right: 15mm, top: 20mm, bottom: 15mm)),
+)
+
 // ============================================================
 // Main document template
 // ============================================================
@@ -274,11 +280,6 @@
   // Paper size configuration
   // ============================================================
 
-  let paper-sizes = (
-    large:  (width: 210mm, height: 280mm, margin: (left: 15mm, right: 14mm, top: 23mm, bottom: 17mm)),
-    medium: (width: 174mm, height: 247mm, margin: (left: 18mm, right: 15mm, top: 23mm, bottom: 14mm)),
-    small:  (width: 152mm, height: 228mm, margin: (left: 17mm, right: 15mm, top: 20mm, bottom: 15mm)),
-  )
   let psize = paper-sizes.at(paper-size)
   let is-twocol = paper-size == "large"
 
@@ -802,7 +803,8 @@
 /// - `caption`: Caption for the table.
 /// - `label`: Optional label to attach to the first figure (e.g. `<tab:params>`).
 /// - `header`: Optional header cells if not using `table.header(...)`.
-/// - `rows-per-page`: Number of data rows per page chunk (default: `25`).
+/// - `rows-per-page`: Number of data rows per page chunk (default: `auto`, dynamically measured based on available page height).
+/// - `max-height`: Maximum height per table chunk (default: `auto`, 70% of available page body height).
 /// - `stroke`: Cell border stroke (default: `none` for academic three-line table).
 /// - `align`: Cell alignment (default: `auto`).
 /// - `continued-suffix`: Custom continuation suffix for subsequent page captions.
@@ -818,8 +820,8 @@
 ///   columns: (1fr, 2fr, 2fr),
 ///   caption: [Complete parameter inventory across all experimental runs.],
 ///   label: <tab:params>,
-///   rows-per-page: 25,
 ///   repeat-caption: false, // subsequent pages show Table 1 (continued)
+///   // rows-per-page defaults to auto (dynamically measured based on page height!)
 ///
 ///   table.header([*ID*], [*Param Name*], [*Value*]),
 ///   [1], [Learning Rate], [$1.0 times 10^(-3)$],
@@ -834,7 +836,8 @@
   caption: none,
   label: none,
   header: none,
-  rows-per-page: 25,
+  rows-per-page: auto,
+  max-height: auto,
   stroke: none,
   align: auto,
   repeat-caption: true,
@@ -885,20 +888,6 @@
     row-list.push(all-cells.slice(start, end))
   }
 
-  // Chunk rows by rows-per-page
-  let chunks = ()
-  let current-chunk = ()
-  for row in row-list {
-    current-chunk.push(row)
-    if current-chunk.len() >= rows-per-page {
-      chunks.push(current-chunk)
-      current-chunk = ()
-    }
-  }
-  if current-chunk.len() > 0 {
-    chunks.push(current-chunk)
-  }
-
   // Determine header to repeat on each page
   let effective-header = if header-elem != none {
     header-elem
@@ -908,8 +897,9 @@
     none
   }
 
-  for (i, chunk) in chunks.enumerate() {
-    let cap = if i == 0 {
+  // Get caption for a specific chunk index (chunk 0 is page 1, chunk > 0 is continuation)
+  let get-caption(chunk-idx) = {
+    if chunk-idx == 0 {
       caption
     } else if caption != none {
       if repeat-caption {
@@ -923,11 +913,11 @@
     } else {
       none
     }
+  }
 
-    if i > 0 {
-      counter(figure.where(kind: table)).update(n => n - 1)
-    }
-
+  // Build the exact figure for a given chunk
+  let make-fig(chunk-idx, chunk-rows) = {
+    let cap = get-caption(chunk-idx)
     let tbl = table(
       columns: columns,
       rows: row-sizing,
@@ -938,15 +928,88 @@
         effective-header
       },
       table.hline(stroke: 0.6pt),
-      ..chunk.flatten(),
+      ..chunk-rows.flatten(),
       table.hline(stroke: 1.2pt),
     )
 
-    let fig = if i == 0 and label != none {
+    if chunk-idx == 0 and label != none {
       [#figure(tbl, caption: cap) #label]
     } else {
       figure(tbl, caption: cap)
     }
+  }
+
+  // Calculate target height for a specific page chunk
+  let psize = paper-sizes.at(paper-size-state.get(), default: paper-sizes.large)
+  let page-body-h = psize.height - psize.margin.top - psize.margin.bottom
+  let get-target-h(chunk-idx) = {
+    if max-height == auto {
+      page-body-h
+    } else if type(max-height) == dictionary {
+      if chunk-idx == 0 and "first" in max-height {
+        max-height.first
+      } else if "rest" in max-height {
+        max-height.rest
+      } else {
+        page-body-h
+      }
+    } else if type(max-height) == array {
+      if chunk-idx < max-height.len() {
+        max-height.at(chunk-idx)
+      } else {
+        max-height.last()
+      }
+    } else {
+      max-height
+    }
+  }
+
+  // Chunk rows by rows-per-page or automatically by measured height
+  let chunks = ()
+  let current-chunk = ()
+
+  if rows-per-page != auto {
+    for row in row-list {
+      current-chunk.push(row)
+      if current-chunk.len() >= rows-per-page {
+        chunks.push(current-chunk)
+        current-chunk = ()
+      }
+    }
+    if current-chunk.len() > 0 {
+      chunks.push(current-chunk)
+    }
+  } else {
+    // Dynamic height calculation per page:
+    // Each page is measured separately using its exact caption (full caption for page 1 vs
+    // continuation caption for page 2+) and each row's actual multi-line content height!
+    let avail-w = psize.width - psize.margin.left - psize.margin.right
+
+    for row in row-list {
+      let test-chunk = current-chunk + (row,)
+      let chunk-idx = chunks.len()
+      let target-h = get-target-h(chunk-idx)
+      let trial-fig = make-fig(chunk-idx, test-chunk)
+      let measured-h = measure(box(width: avail-w, trial-fig)).height
+
+      if measured-h > target-h and current-chunk.len() > 0 {
+        chunks.push(current-chunk)
+        current-chunk = (row,)
+      } else {
+        current-chunk = test-chunk
+      }
+    }
+    if current-chunk.len() > 0 {
+      chunks.push(current-chunk)
+    }
+  }
+
+  for (i, chunk) in chunks.enumerate() {
+    if i > 0 {
+      counter(figure.where(kind: table)).update(n => n - 1)
+    }
+
+    let fig = make-fig(i, chunk)
 
     if is-twocol {
       place(top, scope: "parent", float: true, fig)
