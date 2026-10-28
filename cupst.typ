@@ -974,9 +974,59 @@
     return make-fig(0, row-list)
   }
 
-  // Calculate target height for a specific page chunk
+  // Page dimensions
   let psize = paper-sizes.at(paper-size-state.get(), default: paper-sizes.large)
   let page-body-h = psize.height - psize.margin.top - psize.margin.bottom
+  let avail-w = psize.width - psize.margin.left - psize.margin.right
+
+  // In single-column mode (paper-size != "large"):
+  // If the entire table can fit on a single page, keep it as an intact single page (breakable: false).
+  // Only when a single page cannot fit the table, allow it to break across pages naturally (breakable: true).
+  if not is-twocol {
+    let tbl = table(
+      columns: columns,
+      rows: row-sizing,
+      align: align,
+      stroke: stroke,
+      table.hline(stroke: 1.2pt),
+      if effective-header != none {
+        effective-header
+      },
+      table.hline(stroke: 0.6pt),
+      ..all-cells,
+      table.hline(stroke: 1.2pt),
+    )
+
+    let test-fig = figure(tbl, caption: caption)
+    let total-h = measure(box(width: avail-w, test-fig)).height
+    let max-page-h = if max-height != auto {
+      max-height
+    } else {
+      page-body-h * 0.85
+    }
+
+    if total-h <= max-page-h {
+      // If it fits on one page, it remains on that single page without being split across pages
+      if label != none {
+        return [#figure(tbl, caption: caption) #label]
+      } else {
+        return figure(tbl, caption: caption)
+      }
+    } else {
+      // if it does not fit on one page, it is then laid out to naturally span across pages
+      return [
+        #show figure.where(kind: table): set figure(placement: none)
+        #show figure.where(kind: table): set block(breakable: true)
+        #if label != none [
+          #figure(tbl, caption: caption) #label
+        ] else [
+          #figure(tbl, caption: caption)
+        ]
+      ]
+    }
+  }
+
+  // Calculate target height for a specific page chunk (two-column mode)
   let get-target-h(chunk-idx) = {
     if max-height == auto {
       page-body-h
@@ -1046,19 +1096,12 @@
 
     let fig = make-fig(i, chunk)
 
-    if is-twocol {
-      if i < chunks.len() - 1 {
-        // Table has not ended yet: occupy 100% height so no body text infiltrates the bottom whitespace
-        place(top, scope: "parent", float: true, block(width: 100%, height: 100%, fig))
-      } else {
-        // Final chunk: take only natural height so body text CAN continue in the remaining space
-        place(top, scope: "parent", float: true, fig)
-      }
+    if i < chunks.len() - 1 {
+      // Table has not ended yet: occupy 100% height so no body text infiltrates the bottom whitespace
+      place(top, scope: "parent", float: true, block(width: 100%, height: 100%, fig))
     } else {
-      fig
-      if i < chunks.len() - 1 {
-        pagebreak()
-      }
+      // Final chunk: take only natural height so body text CAN continue in the remaining space
+      place(top, scope: "parent", float: true, fig)
     }
   }
 }
