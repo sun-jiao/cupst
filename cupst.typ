@@ -1128,7 +1128,8 @@
 }
 
 #let plaincite(..labels) = {
-    show regex("[\(\)]"): ""
+    show regex("\)"): ""
+    show regex(" \("): ", "
     let args = labels.pos()
     args.map(l => {
       cite(l, form: "prose")
