@@ -1155,28 +1155,43 @@
 // citation
 // ============================================================
 
-#let posscite(..labels) = {
-    show regex("\s\("): [#{sym.quote.single.r}s (]
-    let args = labels.pos()
-    args.map(l => {
-      cite(l, form: "prose")
-    }).join(", ", last: " & ")
+#let posscite(key, supplement: none, style: auto, ..args) = {
+  show regex("\s\("): [#{sym.quote.single.r}s (]
+  let pos = args.pos()
+  let body = if pos.len() > 0 { pos.at(0) } else { none }
+
+  if body != none and supplement != none {
+    panic("Cannot specify both `body` and `supplement` for posscite.")
+  }
+
+  let supp = if body != none { body } else { supplement }
+  cite(key, form: "prose", supplement: supp, style: style)
 }
 
-#let textcite(..labels) = {
-    let args = labels.pos()
-    args.map(l => {
-      cite(l, form: "prose")
-    }).join(", ", last: " & ")
+#let textcite(key, supplement: none, style: auto, ..args) = {
+  let pos = args.pos()
+  let body = if pos.len() > 0 { pos.at(0) } else { none }
+
+  if body != none and supplement != none {
+    panic("Cannot specify both `body` and `supplement` for posscite.")
+  }
+
+  let supp = if body != none { body } else { supplement }
+  cite(key, form: "prose", supplement: supp, style: style)
 }
 
-#let plaincite(..labels) = {
-    show regex("\)"): ""
-    show regex(" \("): ", "
-    let args = labels.pos()
-    args.map(l => {
-      cite(l, form: "prose")
-    }).join(", ", last: " & ")
+#let plaincite(key, supplement: none, style: auto, ..args) = {
+  show regex("\)"): ""
+  show regex(" \("): ", "
+  let pos = args.pos()
+  let body = if pos.len() > 0 { pos.at(0) } else { none }
+
+  if body != none and supplement != none {
+    panic("Cannot specify both `body` and `supplement` for posscite.")
+  }
+
+  let supp = if body != none { body } else { supplement }
+  cite(key, form: "prose", supplement: supp, style: style)
 }
 
 
