@@ -759,7 +759,7 @@
             authors.at(0).name
             if authors.len() > 1 [ #tr("et-al") ]
           }
-        } (#year). #title. #emph(journal) *#volume*, #link("https://doi.org/" + doi)
+        } (#year). #title. #emph(journal) *#volume*#if doi != none [ , #link("https://doi.org/" + doi) ]
       ]
 
       if target() != "html" {

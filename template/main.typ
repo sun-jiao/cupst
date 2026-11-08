@@ -1,4 +1,4 @@
-#import "cupst.typ": *
+#import "@preview/cupst:0.1.0": *
 
 #show: cupst.with(
   title: [Scalable Representation Learning and Structural Inference in Heterogeneous Information Networks],
@@ -61,7 +61,7 @@
 
 The rapid proliferation of networked sensor systems, biological ontologies, and multi-relational knowledge graphs has underscored the imperative for scalable, expressive representation learning algorithms @Goodfellow2016DeepLearning. Unlike homogeneous graphs where nodes and edges share a uniform attribute space, heterogeneous information networks (HINs) encode multi-typed entities and diverse semantics, presenting unique theoretical and algorithmic challenges @Vaswani2017Attention.
 
-Prior investigations have established foundational principles for localized graph convolutions and residual representations @He2016ResNet. Furthermore, #textcite(<Selvaraju2020Grad>) highlighted the necessity of gradient-based interpretability in deep representations, demonstrating how localization maps reflect structural saliency. #posscite(<Huerta2016ETE>) tree-traversal techniques and phylogenomic visualization pipelines also illustrate the growing demand for scalable graph-theoretic infrastructure in computational biology.
+Prior investigations have established foundational principles for localized graph convolutions and residual representations @He2016ResNet. Furthermore, #cite(<Selvaraju2020Grad>, form: "prose") highlighted the necessity of gradient-based interpretability in deep representations, demonstrating how localization maps reflect structural saliency. #cite(<Huerta2016ETE>, form: "author")’s (#cite(<Huerta2016ETE>, form: "year")) tree-traversal techniques and phylogenomic visualization pipelines also illustrate the growing demand for scalable graph-theoretic infrastructure in computational biology.
 
 #quote(attribution: [Claude E. Shannon, 1940 #cite(<Shannon1940Thesis>)])[
   "An algebra is developed for the mathematical analysis of switching circuits... showing that any operation capable of expression in symbolic logic can be performed by electrical systems."
