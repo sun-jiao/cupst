@@ -2,8 +2,19 @@
 // cupst.typ
 // Email: sunjiao19@mails.ucas.ac.cn
 //
-// Released under the LaTeX Project Public License v1.3c or later
-// See http://www.latex-project.org/lppl.txt
+// License: MIT License
+// ----------------------------------------------------------------------
+//
+// ACKNOWLEDGEMENTS & DESIGN ORIGIN:
+// The visual layout and design rules implemented in this Typst template
+// are inspired by the `cup-journal.cls` LaTeX class for Cambridge
+// University Press journals, originally developed by Paul Gessler
+// (Overleaf) and others under the LPPL v1.3c license.
+//
+// This Typst implementation is a reimplementation of Cambridge University
+// Press's Visual Layout. It is not officially associated with or
+// endorsed by Cambridge University Press.
+//
 // ----------------------------------------------------------------------
 
 #import "@preview/orchid:0.1.0"
@@ -1174,43 +1185,7 @@
 }
 
 // ============================================================
-// Base on the joas class
 //
-// Support for submissions to Journal of Open Aviation Science
-// Email: j.sun-1@tudelft.nl
-// Released under the LaTeX Project Public License v1.3c or later
-// See http://www.latex-project.org/lppl.txt
-//
-// Based on the cup-jounal class
-//
-// Support for submissions to Cambridge University Press journals
-// Email: paul.gessler@overleaf.com
-// Released under the LaTeX Project Public License v1.3c or later
-// See http://www.latex-project.org/lppl.txt
-// 
-// Based on the achemso class
-// Originally developed by Mats Dahlgren
-// Copyright (C) 1996-1998 by Mats Dahlgren
-// Copyright (C) 2008-2018 by Joseph Wright <joseph.wright@morningstar2.co.uk>
-// Copyright (C) 2019 by Overleaf (WriteLaTeX Limited)
-// 
-// Part of this bundle is derived from cite.sty, to which the
-// following license applies:
-//   Copyright (C) 1989-2009 by Donald Arseneau
-//   These macros may be freely transmitted, reproduced, or
-//   modified provided that this notice is left intact.
-// 
-// It may be distributed and/or modified under the conditions of
-// the LaTeX Project Public License (LPPL), either version 1.3c of
-// this license or (at your option) any later version.  The latest
-// version of this license is in the file:
-// 
-//    http://www.latex-project.org/lppl.txt
-// 
-// This work is "maintained" (as per LPPL maintenance status) by
-//   Jiao Sun.
-// 
 // This work consists of the file cupst.typ.
 // 
-//
 // End of file 'cupst.typ'.
