@@ -1151,49 +1151,6 @@
   paragraph(dict.credit)[#body]
 }
 
-// ============================================================
-// citation
-// ============================================================
-
-#let posscite(key, supplement: none, style: auto, ..args) = {
-  show regex("\s\("): [#{sym.quote.single.r}s (]
-  let pos = args.pos()
-  let body = if pos.len() > 0 { pos.at(0) } else { none }
-
-  if body != none and supplement != none {
-    panic("Cannot specify both `body` and `supplement` for posscite.")
-  }
-
-  let supp = if body != none { body } else { supplement }
-  cite(key, form: "prose", supplement: supp, style: style)
-}
-
-#let textcite(key, supplement: none, style: auto, ..args) = {
-  let pos = args.pos()
-  let body = if pos.len() > 0 { pos.at(0) } else { none }
-
-  if body != none and supplement != none {
-    panic("Cannot specify both `body` and `supplement` for posscite.")
-  }
-
-  let supp = if body != none { body } else { supplement }
-  cite(key, form: "prose", supplement: supp, style: style)
-}
-
-#let plaincite(key, supplement: none, style: auto, ..args) = {
-  show regex("\)"): ""
-  show regex(" \("): ", "
-  let pos = args.pos()
-  let body = if pos.len() > 0 { pos.at(0) } else { none }
-
-  if body != none and supplement != none {
-    panic("Cannot specify both `body` and `supplement` for posscite.")
-  }
-
-  let supp = if body != none { body } else { supplement }
-  cite(key, form: "prose", supplement: supp, style: style)
-}
-
 
 #let appendix(body) = context {
   let dict = lang-data.at(lang-state.get(), default: lang-data.en)
